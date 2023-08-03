@@ -5,11 +5,16 @@ from .views import *
 
 urlpatterns = [
 
-	# path('signup/', views.signUp, name="signup"),
-	# path('login/', views.logIn, name="login"),
-	# path('forgot/', views.forgot, name="forgot"),
-	# path('reset/', views.reset, name="reset"),
-	# path('verify-jwt/', views.verify_jwt, name="verify-jwt"),
-    # path('verify-jwt-customer/', views.verify_jwt_customer, name="verify-jwt-customer"),
+	# Beat Offficer
+	path('bo-login/', views.bo_login, name="bo-login"),
+	path('bo-forgot/', views.bo_forgot, name="bo-forgot"),
+	path('bo-reset/', views.bo_reset, name="bo-reset"),
 
+	# Officer
+	path('officer-login/', views.officer_login, name="officer-login"),
+	path('officer-forgot/', views.officer_forgot, name="officer-forgot"),
+	path('officer-reset/', views.officer_reset, name="officer-reset"),
+
+	# testing
+	# path('signup/', views.signUp, name="signup"),
 ]

@@ -13,7 +13,15 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class otpSerializer(serializers.Serializer):
     otp = serializers.IntegerField(required = True)
-    pw = serializers.CharField(required = False)
+    password = serializers.CharField(required = True)
 
 class emailSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True)
+
+class signupSerializer(serializers.Serializer):
+    name = serializers.CharField(required = True)
+    email = serializers.EmailField(required = True)
+    phone = serializers.CharField(required = True)
+    password = serializers.CharField(required = True)
+    service_id = serializers.CharField(required = True)
+    post = serializers.CharField(required = True)

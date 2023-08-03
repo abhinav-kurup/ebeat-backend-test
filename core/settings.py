@@ -149,9 +149,9 @@ MEDIA_ROOT = os.path.join("data")
 
 
 # Geolocaiton Lib Settings
-GDAL_LIBRARY_PATH = "/opt/homebrew/Cellar/gdal/3.7.1/lib/libgdal.dylib"
-GEOS_LIBRARY_PATH = "/opt/homebrew/Cellar/geos/3.12.0/lib/libgeos.dylib"
-SPATIALITE_LIBRARY_PATH = "/usr/local/lib/mod_spatialite.dylib"
+GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH")
+GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH")
+SPATIALITE_LIBRARY_PATH = config("SPATIALITE_LIBRARY_PATH")
 
 
 # CORS
@@ -189,11 +189,11 @@ REST_FRAMEWORK = {
 
 # Auth - JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
+    'UPDATE_LAST_LOGIN': True,
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': config("JWT_KEY"),
@@ -235,10 +235,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Service
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'us2.smtp.mailhostbox.com'
-EMAIL_HOST = config("EMAIL_HOST")
-# EMAIL_PORT = 25
-EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST = 'us2.smtp.mailhostbox.com'
+# EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = 25
+# EMAIL_PORT = config("EMAIL_PORT")
 EMAIL_HOST_USER = config("EMAIL_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
 EMAIL_USE_TLS = True

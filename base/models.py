@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.gis.db import models as gis_models
 from .manager import UserManager
 from django.db import models
 from .validators import *
@@ -27,3 +28,11 @@ class BaseUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     objects = UserManager()
     def __str__(self):
         return self.email
+
+
+class PolygonBase(BaseModel):
+    name = models.CharField(max_length=50)
+    region = gis_models.PolygonField(srid=4326)
+    desc = models.TextField(null=True, blank=True)
+    class Meta:
+        abstract = True
