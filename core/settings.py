@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'leaflet',
     'base.apps.BaseConfig',
     'authentication.apps.AuthenticationConfig',
+    'app.apps.AppConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 # Middleware
@@ -154,12 +156,17 @@ GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH")
 SPATIALITE_LIBRARY_PATH = config("SPATIALITE_LIBRARY_PATH")
 
 
+
 # CORS
 CORS_ALLOW_ALL_ORGIN = True
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "https://admin-dashboard-goa-police.netlify.app/"
-# ]
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
+
+CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 
 CORS_ALLOW_METHODS = [
     'GET',
@@ -194,6 +201,13 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
+
+    'AUTH_COOKIE': 'token',         # Cookie name. Enables cookies if value is set.
+    'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
+    'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
+    'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
+    'AUTH_COOKIE_PATH': '/',        # The path of the auth cookie.
+    'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': config("JWT_KEY"),

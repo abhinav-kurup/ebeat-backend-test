@@ -1,8 +1,6 @@
 from django.db import models
 from base.models import *
 
-OFFICER_POSTS = (("PI", "PI"), ("DYSP", "DYSP"), ("SP", "SP"), ("IGP", "IGP"))
-
 
 class BeatOfficerModel(BaseUser):
     service_number = models.CharField(max_length=10)
@@ -13,7 +11,12 @@ class BeatOfficerModel(BaseUser):
 
 
 class OfficerModel(BaseUser):
-    post = models.CharField(max_length=50, choices=OFFICER_POSTS, null=True, blank=True)
+    class PolicePost(models.TextChoices):
+        SP = "SP", "Superintendent of Police"
+        DYSP = "DYSP", "Deputy Superintendent of Police"
+        PI = "PI", "Police Inspector"
+        IGP = "IGP", "Inspector-General of Police"
+    post = models.CharField(max_length=50, choices=PolicePost.choices)
     service_number = models.CharField(max_length=10)
     def __str__(self):
         return self.email
