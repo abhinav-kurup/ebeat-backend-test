@@ -7,17 +7,32 @@ from rest_framework import status
 from django.core.paginator import Paginator
 from rest_framework import status
 from base.utils import paginate
+from authentication.permissions import *
+from authentication.models import *
 from .serializers import *
 from .threads import *
 from .models import *
 
 
-
+# @api_view(["GET"])
 class GetLocationTypes(ListAPIView):
     # authentication_classes = [JWTAuthentication]
     # permission_classes = [IsAuthenticated]
     queryset = LocationCategoryModel.objects.all()
     serializer_class = LocationCategoryModelSerializer
+
+
+@api_view(["GET"])
+@permission_classes([IsBO])
+def app_get_locations(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.email)
+        region = bo.police_station.region
+        queryset = LocationCategoryModel.objects.filter(location__within=region, is_active=True)
+        ser = LocationCategoryModelSerializer(queryset, many=True)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LocationModelListView(ListAPIView):

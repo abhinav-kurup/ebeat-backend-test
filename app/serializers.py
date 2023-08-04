@@ -7,6 +7,7 @@ class LocationCategoryModelSerializer(serializers.ModelSerializer):
         model = LocationCategoryModel
         fields = ["id", "location_type"]
 
+
 class LocationInchargeModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationInchargeModel

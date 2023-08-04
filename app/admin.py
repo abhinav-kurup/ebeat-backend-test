@@ -13,4 +13,3 @@ class LocationModelAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     search_fields = ["name"]
     inlines = [LocationInchargeModelAdmin]
 admin.site.register(LocationModel, LocationModelAdmin)
-

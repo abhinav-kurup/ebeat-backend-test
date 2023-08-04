@@ -15,6 +15,7 @@ urlpatterns = [
 	path('officer-forgot/', views.officer_forgot, name="officer-forgot"),
 	path('officer-reset/', views.officer_reset, name="officer-reset"),
 
+	path('get-beat-areas/', views.GetBeatAreaDropdown.as_view(), name="get-beat-areas"),
 	# testing
-	# path('signup/', views.signUp, name="signup"),
+	path('signup/', views.signUp, name="signup"),
 ]

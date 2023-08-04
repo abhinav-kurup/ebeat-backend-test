@@ -30,9 +30,19 @@ class BaseUser(AbstractBaseUser, PermissionsMixin, BaseModel):
         return self.email
 
 
-class PolygonBase(BaseModel):
+class BasePolygon(BaseModel):
     name = models.CharField(max_length=50)
-    region = gis_models.PolygonField(srid=4326)
     desc = models.TextField(null=True, blank=True)
+    contact_no = models.CharField(max_length=50, null=True, blank=True)
+    region = gis_models.PolygonField(srid=4326)
+    class Meta:
+        abstract = True
+
+
+class BaseVisit(BaseModel):
+    audio = models.FileField(upload_to="audio", max_length=100, null=True, blank=True)
+    comments = models.TextField(null=True, blank=True)
+    img = models.ImageField(upload_to="visit", height_field=None, width_field=None, max_length=None, null=True, blank=True)
+    visit_id = models.CharField(max_length=25, unique=True)
     class Meta:
         abstract = True

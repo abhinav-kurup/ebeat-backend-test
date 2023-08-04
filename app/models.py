@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models as gis_models
-from base.models import BaseModel, PolygonBase
+from base.models import BaseModel
 from django.db import models
+
 
 
 class LocationCategoryModel(BaseModel):
@@ -36,33 +37,22 @@ class LocationInchargeModel(BaseModel):
         db_table = 'location_incharge'
 
 
-class BeatAreaModel(PolygonBase):
-    beat_no = models.SmallIntegerField()
+class PersonTypeModel(BaseModel):
+    person_type = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
+    def __str__(self):
+        return self.person_type
+    class Meta:
+        db_table = 'person_type'
+
+
+class PersonModel(BaseModel):
+    name = models.CharField(max_length=50)
+    type = models.ForeignKey(LocationCategoryModel, related_name="person_type", on_delete=models.CASCADE)
+    address = models.TextField(null=True, blank=True)
+    photo = models.ImageField(upload_to="person", height_field=None, width_field=None, max_length=None, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     def __str__(self):
         return self.name
     class Meta:
-        db_table = 'beat_area'
-
-
-class PoliceStationModel(PolygonBase):
-    def __str__(self):
-        return self.name
-    class Meta:
-        db_table = 'police_station'
-
-
-class SubDivisionModel(PolygonBase):
-    def __str__(self):
-        return self.name
-    class Meta:
-        db_table = 'sub_division'
-
-
-class DistrictModel(PolygonBase):
-    def __str__(self):
-        return self.name
-    class Meta:
-        db_table = 'district'
-
-
-
+        db_table = 'person'

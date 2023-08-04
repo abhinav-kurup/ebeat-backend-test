@@ -19,8 +19,18 @@ pip install psycopg2-binary
 
 
 
-## connect to remote postgres
+## delete tables in postgres
 
-psql -h dpg-cj4f6e2ip7vuasiultj0-a -p 5432 -U ebeat_db_user -d ebeat_db
+psql -d test
 
-postgres://ebeat_db_user:6H5aDRXbGUKzafCWNYhtjgcKK8vavJrf@dpg-cj4f6e2ip7vuasiultj0-a/ebeat_d
+DROP SCHEMA public CASCADE;
+
+CREATE SCHEMA public;
+
+GRANT CREATE ON SCHEMA public TO testuser;
+
+GRANT ALL ON SCHEMA public TO public;
+
+create extension postgis;
+
+##

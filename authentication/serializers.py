@@ -25,3 +25,10 @@ class signupSerializer(serializers.Serializer):
     password = serializers.CharField(required = True)
     service_id = serializers.CharField(required = True)
     post = serializers.CharField(required = True)
+
+
+
+class BeatAreaDropdownSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeatAreaModel
+        fields = ["id", "name"]

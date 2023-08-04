@@ -2,6 +2,8 @@ from datetime import timedelta
 from decouple import config
 from pathlib import Path
 import os
+from authentication.sessions import CustomSessionAuthentication
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,6 +28,7 @@ INSTALLED_APPS = [
     'channels',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework_gis',
     'leaflet',
     'base.apps.BaseConfig',
@@ -87,19 +90,8 @@ DATABASES = {
         'PORT': config("DB_PORT"),
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#         'NAME': 'your_db_name',
-#         'USER': 'your_db_user',
-#         'PASSWORD': 'your_db_password',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
 
 
-# Auth
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -156,26 +148,26 @@ GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH")
 SPATIALITE_LIBRARY_PATH = config("SPATIALITE_LIBRARY_PATH")
 
 
-
 # CORS
 CORS_ALLOW_ALL_ORGIN = True
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_HTTPONLY = True
-
-CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 CORS_ALLOW_METHODS = [
     'GET',
-    'OPTIONS',
-    'PATCH',
     'POST',
+    'PATCH',
     'DELETE'
+    # 'OPTIONS',
 ]
 
+# CSRF_COOKIE_SAMESITE = "Lax"
+# SESSION_COOKIE_SAMESITE = "Lax"
+# CSRF_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_HTTPONLY = True
 
 # SSL Settings
 # SESSION_COOKIE_SECURE = True
@@ -188,21 +180,28 @@ CORS_ALLOW_METHODS = [
 
 # Django REST Framework
 REST_FRAMEWORK = {
-    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
+    # 'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # f'CustomSessionAuthentication',
+        # 'authentication.sessions.CustomSessionAuthentication',
     )
 }
+
+# print("#######")
+# print(authentication.sessions.CustomSessionAuthentication)
+# print("#######")
 
 # Auth - JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
 
-    'AUTH_COOKIE': 'token',         # Cookie name. Enables cookies if value is set.
+    'AUTH_COOKIE': 'abc',         # Cookie name. Enables cookies if value is set.
     'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
     'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
     'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
@@ -233,28 +232,44 @@ SIMPLE_JWT = {
 }
 
 # Cache
+REDIS_HOST = config("REDIS_HOST")
+REDIS_PORT = config("REDIS_PORT")
+REDIS_DB = config("REDIS_DB")
+REDIS_PASSWORD = config("REDIS_PASSWORD")
+
 CACHE_TTL = 60
 DEFAULT_TIMEOUT = 60
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        # "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": REDIS_PASSWORD,
         }
     }
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Session
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+SESSION_COOKIE_AGE = 3600  # Set the session timeout (in seconds)
+SESSION_COOKIE_NAME = 'abc'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
+    # 'django.contrib.auth.backends.SessionAuthenticationBackend',  # Include the SessionAuthenticationBackend
+]
 
 # Email Service
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'us2.smtp.mailhostbox.com'
-# EMAIL_HOST = config("EMAIL_HOST")
-EMAIL_PORT = 25
-# EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
 EMAIL_HOST_USER = config("EMAIL_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

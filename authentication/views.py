@@ -1,3 +1,4 @@
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -122,7 +123,7 @@ def officer_login(request):
             jwt_token = RefreshToken.for_user(user)
             tok = str(jwt_token.access_token)
             response = Response({"message": "Login Successfull"})
-            response.set_cookie("token", tok, httponly=True, expires=(datetime.now() + timedelta(hours=9)))
+            response.set_cookie("tok", tok, httponly=True, expires=(datetime.now() + timedelta(hours=9)))
             return response
         return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
@@ -166,3 +167,11 @@ def officer_reset(request):
         return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class GetBeatAreaDropdown(ListAPIView):
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    queryset = BeatAreaModel.objects.all()
+    serializer_class = BeatAreaDropdownSerializer
