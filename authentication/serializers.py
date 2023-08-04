@@ -25,6 +25,7 @@ class signupSerializer(serializers.Serializer):
     password = serializers.CharField(required = True)
     service_id = serializers.CharField(required = True)
     post = serializers.CharField(required = True)
+    police_station = serializers.CharField(required = False)
 
 
 

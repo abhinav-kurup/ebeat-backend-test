@@ -26,11 +26,20 @@ class GetLocationTypes(ListAPIView):
 @permission_classes([IsBO])
 def app_get_locations(request):
     try:
-        bo = BeatOfficerModel.objects.get(email=request.email)
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
         region = bo.police_station.region
-        queryset = LocationCategoryModel.objects.filter(location__within=region, is_active=True)
-        ser = LocationCategoryModelSerializer(queryset, many=True)
-        return Response(ser.data, status=status.HTTP_200_OK)
+        queryset = LocationModel.objects.filter(location__within=region, is_active=True)
+        if request.query_params.get('search'):
+            search_param = request.query_params.get('search')
+            objs = queryset.filter(name__icontains=search_param, address__icontains=search_param)
+        else:
+            objs = queryset
+        page = request.GET.get("page", 1)
+        paginator = Paginator(objs, 6)
+        data = paginate(objs, paginator, page)
+        serializer = LocationModelSerializer(data["results"], many=True)
+        data["results"] = serializer.data
+        return Response({"data":data}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -55,3 +64,5 @@ class SingleLocationView(RetrieveAPIView):
     queryset = LocationModel.objects.all()
     serializer_class = LocationDetailModelSerializer
     lookup_field = "id"
+
+

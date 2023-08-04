@@ -21,14 +21,15 @@ def signUp(request):
         serializer = signupSerializer(data=data)
         if serializer.is_valid():
             email = serializer.data["email"]
-            if OfficerModel.objects.filter(email=email).first():
+            if BeatOfficerModel.objects.filter(email=email).first():
                 return Response({"message":"Acount already exists."}, status=status.HTTP_406_NOT_ACCEPTABLE)
-            new_customer = OfficerModel.objects.create(
+            new_customer = BeatOfficerModel.objects.create(
                 email = email,
                 name = serializer.data["name"],
                 phone = serializer.data["phone"],
-                post = serializer.data["post"],
-                service_number = serializer.data["service_id"]
+                # post = serializer.data["post"],
+                service_number = serializer.data["service_id"],
+                police_station = PoliceStationModel.objects.get(id = serializer.data["police_station"])
             )
             new_customer.set_password(serializer.data["password"])
             new_customer.save()
