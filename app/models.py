@@ -28,9 +28,9 @@ class LocationModel(BaseModel):
 
 class LocationInchargeModel(BaseModel):
     location = models.ForeignKey(LocationModel, related_name="location_incharge", on_delete=models.CASCADE)
-    incharge_name = models.CharField(max_length=50)
-    incharge_contact = models.CharField(max_length=50)
-    incharge_description = models.TextField(null=True, blank=True)
+    name = models.CharField(max_length=50)
+    contact = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
     def __str__(self):
         return self.incharge_name
     class Meta:

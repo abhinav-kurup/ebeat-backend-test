@@ -13,7 +13,7 @@ from authentication.permissions import *
 from authentication.models import *
 from authentication.serializers import *
 from authentication.decorators import *
-
+from django.shortcuts import get_object_or_404
 from reports.models import *
 from reports.serializers import *
 from base.models import BasePolygon
@@ -31,45 +31,44 @@ class GetLocationTypes(ListAPIView):
     serializer_class = LocationCategoryModelSerializer
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def add_locations(request):
     try:
-        if request.user.is_authenticated:
-            try:
-                data = request.data
-                serializer = AddLocationSerializer(data=data)
-                if serializer.is_valid():
-                    new_location = LocationModel.objects.create(
-                        name = serializer.data["name"],
-                        type = LocationCategoryModel.objects.get(type__location_type = serializer.data["type"]),
-                        location = Point(serializer.data["longitude"],serializer.data["latitude"]),
-                        photo = serializer.data["photo"],
-                        address = serializer.data["address"],
-                        description = serializer.data["description"],
-                    )
-                    new_location.save()
-                else:    
-                    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-                serializer = AddLocationInchargeSerializer(data=data)
-                if serializer.is_valid():
-                    new_incharge = LocationInchargeModel.objects.create(
-                        incharge_name = serializer.data["incharge_name"],
-                        location = new_location,
-                        incharge_contact = serializer.data["incharge_contact"],
-                        incharge_description = serializer.data["incharge_description"],
-                    )
-                    new_incharge.save()
-                    return Response({"message":"Account created"}, status=status.HTTP_201_CREATED)
-                else:    
-                    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        data = request.data
+        serializer = AddLocationSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Account created"}, status=status.HTTP_201_CREATED)
+        else:    
+            return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def update_location(request,pk):
+        try:
+            try:
+                location = LocationModel.objects.get(pk=pk)
+            except LocationModel.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            data = request.data
+            serializer = UpdateLocationSerializer(location,data=data,partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message":"Updated Location"}, status=status.HTTP_201_CREATED)
+            else:    
+                return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
-#@allowed_users(allowed_roles=['SP','PI'])
-#@permission_classes([IsBO])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def app_get_locations(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
@@ -136,6 +135,8 @@ class SingleLocationView(RetrieveAPIView):
 
 #################################  PERSON   #######################################
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def app_get_person(request):
     if request.user.is_authenticated:
         try:
@@ -191,7 +192,7 @@ class SinglePersonView(RetrieveAPIView):
         
 
 
-############# REPORTS ####################
+################################################## REPORTS #######################################################################
 from reports.models import *
 from reports.serializers import *
 
@@ -201,7 +202,6 @@ from reports.serializers import *
 def add_location_reports(request):
     try:
         data = request.data
-        print(request.user.id)
         serializer = AddLocationVisitSerializer(data=data)
         if serializer.is_valid():
             location_visit = serializer.create(serializer.validated_data,request.user)
@@ -612,3 +612,17 @@ def web_get_person(request):
             return Response({"data":data}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+
+######################## Testing ####################################
+
+@api_view(["GET"])
+def get_region(request):
+    ps = PoliceStationModel.objects.first()
+    ser = PoliceRegionSerializer(ps)
+    reg = ps.region
+    queryset = BeatAreaModel.objects.filter(region__within=reg)
+    serializer = RegionSerializer(queryset , many=True)
+    return Response({"police station":ser.data,"beat area":serializer.data}, status=status.HTTP_200_OK)

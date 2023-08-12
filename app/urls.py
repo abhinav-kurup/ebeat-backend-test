@@ -14,6 +14,7 @@ urlpatterns = [
 	
     # path('get-locations/', views.LocationModelListView.as_view(), name="get-locations"),
 	path('location/<id>/', views.SingleLocationView.as_view(), name="single-location"),
+    path('update-location/<int:pk>/', views.update_location ,name='update-location'),
     
 	#persons
 	path('app/get-persons/', views.app_get_person, name="app-get-person"),
@@ -46,4 +47,7 @@ urlpatterns = [
     path('web/get-location-details/', views.web_location_detail, name="web-get-location-details"),
     path('web/get-location-reports/', views.web_location_reports, name="web-get-location-reports"),
     path('web/get-location-report-details/', views.web_location_report_detail, name="web-get-location-report-details"),
+
+    #testing
+    path('web/get-region/', views.get_region, name="web-get-region"),
 ]

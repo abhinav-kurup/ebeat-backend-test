@@ -4,39 +4,70 @@ from base.models import *
 from authentication.models import *
 from authentication.serializers import *
 from reports.serializers import *
-
+from django.contrib.gis.geos import Point
 from reports.models import *
 
-# class AddLocationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = LocationModel
-#         fields = ["id", "photo", "name", "address", "location","type","description"]
+
 
 class AddLocationSerializer(serializers.Serializer):
-    name = serializers.CharField(required = True)
-    latitude = serializers.FloatField(required = True)
-    longitude = serializers.FloatField(required = True)
-    # phone = serializers.CharField(required = True)
-    address = serializers.CharField(required = True)
-    type = serializers.CharField(required = True)
-    description = serializers.CharField(required = True)
-    photo = serializers.ImageField(required = True)
-
-
-
-
-    
-# class AddLocationInchargeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = LocationInchargeModel
-#         fields = ["id","name", "contact", "location","description"]
-
-class AddLocationInchargeSerializer(serializers.Serializer):
+    class AppAddLocationSerializer(serializers.Serializer):
+        name = serializers.CharField(required = True)
+        latitude = serializers.FloatField(required = True)
+        longitude = serializers.FloatField(required = True)
+        address = serializers.CharField(required = True)
+        type = serializers.CharField(required = True)
+        description = serializers.CharField(required = True)
+        photo = serializers.ImageField(required = True)
         incharge_name = serializers.CharField(required = True)
-        #location = serializers.CharField(required=True)
-        # phone = serializers.CharField(required = True)
         incharge_contact = serializers.CharField(required = True)
         incharge_description = serializers.CharField(required = True)
+        def create(self, validated_data):
+            new_location = LocationModel.objects.create(
+                name = validated_data["name"],
+                type = LocationCategoryModel.objects.get(location_type = validated_data["type"]),
+                location = Point(validated_data["longitude"],validated_data["latitude"]),
+                photo = validated_data["photo"],
+                address = validated_data["address"],
+                description = validated_data["description"],
+            )
+            new_location.save()
+            new_incharge = LocationInchargeModel.objects.create(
+                name = validated_data["incharge_name"],
+                location = new_location,
+                contact = validated_data["incharge_contact"],
+                description = validated_data["incharge_description"],
+            )
+            new_incharge.save()
+            return new_location
+
+
+class UpdateLocationSerializer(serializers.Serializer):
+    name = serializers.CharField(required = False)
+    latitude = serializers.FloatField(required = False)
+    longitude = serializers.FloatField(required = False)
+    address = serializers.CharField(required = False)
+    type = serializers.CharField(required = False)
+    description = serializers.CharField(required = False)
+    photo = serializers.ImageField(required = False)
+    incharge_name = serializers.CharField(required = False)
+    incharge_contact = serializers.CharField(required = False)
+    incharge_description = serializers.CharField(required = False)
+    def update(self, instance, validated_data):
+        if 'name' in validated_data:
+            instance.name = validated_data['name']
+        if 'latitude' in validated_data and 'longitude' in validated_data:
+            instance.location = Point(validated_data["longitude"],validated_data["latitude"]),
+        if 'type' in validated_data:
+            type = LocationCategoryModel.objects.get(location_type = validated_data["type"]),
+        if 'name' in validated_data:
+            instance.name = validated_data['name']
+        if 'name' in validated_data:
+            instance.name = validated_data['name']
+        # Save the updated instance
+        instance.save()
+        return instance
+
+
 
 class LocationCategoryModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,6 +91,7 @@ class LocationModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationModel
         fields = ["id", "photo", "name", "address", "location"]
+
 
 class LocationDetailModelSerializer(serializers.ModelSerializer):
     last_visited = serializers.SerializerMethodField()
@@ -146,3 +178,17 @@ class PersonModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonModel
         fields = ["id", "photo", "name", "address", "location","type"]
+
+
+##################### WEB TESTING ###########################
+
+class PoliceRegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PoliceStationModel
+        fields = ["name","region"]
+
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeatAreaModel
+        fields = ["name","region"]
+
