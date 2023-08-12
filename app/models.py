@@ -28,11 +28,11 @@ class LocationModel(BaseModel):
 
 class LocationInchargeModel(BaseModel):
     location = models.ForeignKey(LocationModel, related_name="location_incharge", on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    contact = models.CharField(max_length=50)
-    description = models.TextField(null=True, blank=True)
+    incharge_name = models.CharField(max_length=50)
+    incharge_contact = models.CharField(max_length=50)
+    incharge_description = models.TextField(null=True, blank=True)
     def __str__(self):
-        return self.name
+        return self.incharge_name
     class Meta:
         db_table = 'location_incharge'
 
@@ -48,11 +48,12 @@ class PersonTypeModel(BaseModel):
 
 class PersonModel(BaseModel):
     name = models.CharField(max_length=50)
-    type = models.ForeignKey(LocationCategoryModel, related_name="person_type", on_delete=models.CASCADE)
+    type = models.ForeignKey(PersonTypeModel, related_name="person_category", on_delete=models.CASCADE)
+    location = gis_models.PointField(srid=4326)
     address = models.TextField(null=True, blank=True)
     photo = models.ImageField(upload_to="person", height_field=None, width_field=None, max_length=None, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    def __str__(self):
+    def _str_(self):
         return self.name
     class Meta:
         db_table = 'person'

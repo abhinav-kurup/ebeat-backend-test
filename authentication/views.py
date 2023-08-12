@@ -1,6 +1,8 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,6 +18,7 @@ payload = {}
 
 @api_view(["POST"])
 def signUp(request):
+    print("hello")
     try:
         data = request.data
         serializer = signupSerializer(data=data)
@@ -27,9 +30,9 @@ def signUp(request):
                 email = email,
                 name = serializer.data["name"],
                 phone = serializer.data["phone"],
-                # post = serializer.data["post"],
-                service_number = serializer.data["service_id"],
-                police_station = PoliceStationModel.objects.get(id = serializer.data["police_station"])
+                #post = serializer.data["post"],
+                service_number = serializer.data["service_number"],
+                police_station = PoliceStationModel.objects.get(name = serializer.data["police_station"])
             )
             new_customer.set_password(serializer.data["password"])
             new_customer.save()
@@ -123,7 +126,7 @@ def officer_login(request):
                 return Response({"error":"Incorrect password"}, status=status.HTTP_406_NOT_ACCEPTABLE)
             jwt_token = RefreshToken.for_user(user)
             tok = str(jwt_token.access_token)
-            response = Response({"message": "Login Successfull"})
+            response = Response({"message": "Login Successfull","token":tok})
             response.set_cookie("tok", tok, httponly=True, expires=(datetime.now() + timedelta(hours=9)))
             return response
         return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -176,3 +179,34 @@ class GetBeatAreaDropdown(ListAPIView):
     # permission_classes = [IsAuthenticated]
     queryset = BeatAreaModel.objects.all()
     serializer_class = BeatAreaDropdownSerializer
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def app_get_beat_areas(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
+        region = bo.police_station.region
+        queryset = BeatAreaModel.objects.filter(region__within=region, is_active=True).values_list("name", flat=True)
+        return Response(list(queryset), status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+    ##################### BEAT OFFICER PROFILE ##########################
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def beat_officer_profile(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
+        serializer = BeatOfficerProfileSerializer(bo)
+        return Response({"data":serializer.data}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

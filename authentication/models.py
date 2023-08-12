@@ -73,6 +73,7 @@ class BeatAreaModel(BasePolygon):
 
 class BeatOfficerModel(BaseUser):
     police_station = models.ForeignKey(PoliceStationModel, related_name="Police_Station_BOs", on_delete=models.CASCADE)
+    beat_area = models.ForeignKey(BeatAreaModel, related_name="bo_of_ba", on_delete=models.DO_NOTHING, null=True, blank=True)
     service_number = models.CharField(max_length=10)
     def __str__(self):
         return self.email
@@ -87,4 +88,7 @@ def user_created(sender, instance, created, **kwargs):
         my_group, _ = Group.objects.get_or_create(name=instance.post) 
         user = OfficerModel.objects.get(email=instance.email)
         my_group.user_set.add(user)
+
+
+
 

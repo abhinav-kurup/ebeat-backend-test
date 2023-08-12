@@ -23,8 +23,8 @@ class signupSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True)
     phone = serializers.CharField(required = True)
     password = serializers.CharField(required = True)
-    service_id = serializers.CharField(required = True)
-    post = serializers.CharField(required = True)
+    service_number = serializers.CharField(required = True)
+   # post = serializers.CharField(required = True)
     police_station = serializers.CharField(required = False)
 
 
@@ -32,4 +32,12 @@ class signupSerializer(serializers.Serializer):
 class BeatAreaDropdownSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeatAreaModel
-        fields = ["id", "name"]
+        fields = [ "name"]
+
+
+class BeatOfficerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeatOfficerModel
+        fields = [ "name","profile_pic","email","service_number","dob","phone","address"]
+
+

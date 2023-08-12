@@ -10,6 +10,14 @@ admin.site.register(SummonWarrentModel, SummonWarrentModelAdmin)
 
 admin.site.register(BeatOfficerLogs)
 
-admin.site.register(LoactionVisitModel)
-admin.site.register(PersonVisitModel)
+class LoactionVisitModelAdmin(admin.ModelAdmin):
+    list_display = [ "location", "situation", "created_at"]
+    list_filter = [ "location", "created_at" ]
+admin.site.register(LoactionVisitModel, LoactionVisitModelAdmin)
+
+class PersonVisitModelAdmin(admin.ModelAdmin):
+    list_display = [ "person", "situation", "created_at"]
+    list_filter = [ "person", "created_at" ]
+admin.site.register(PersonVisitModel, PersonVisitModelAdmin)
+
 admin.site.register(GeneralVisitModel)
