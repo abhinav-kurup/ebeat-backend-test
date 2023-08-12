@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.conf import settings
 from .models import *
 
 
@@ -18,18 +17,19 @@ class otpSerializer(serializers.Serializer):
 class emailSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True)
 
-class signupSerializer(serializers.Serializer):
-    name = serializers.CharField(required = True)
-    email = serializers.EmailField(required = True)
-    phone = serializers.CharField(required = True)
-    password = serializers.CharField(required = True)
-    service_id = serializers.CharField(required = True)
-    post = serializers.CharField(required = True)
-    police_station = serializers.CharField(required = False)
 
-
-
-class BeatAreaDropdownSerializer(serializers.ModelSerializer):
+class BeatOfficerProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeatAreaModel
-        fields = ["id", "name"]
+        model = BeatOfficerModel
+        exclude = ["created_at", "updated_at"]
+
+
+# class signupSerializer(serializers.Serializer):
+#     name = serializers.CharField(required = True)
+#     email = serializers.EmailField(required = True)
+#     phone = serializers.CharField(required = True)
+#     password = serializers.CharField(required = True)
+#     service_id = serializers.CharField(required = False)
+#     post = serializers.CharField(required = False)
+#     police_station = serializers.CharField(required = False)
+

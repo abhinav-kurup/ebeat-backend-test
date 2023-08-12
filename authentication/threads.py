@@ -21,7 +21,7 @@ class send_login_otp(threading.Thread):
             message = f"The OTP to log in into your email is {otp} \nIts valid only for 2 mins."
             email_from = settings.EMAIL_HOST_USER
             print("started sending")
-            send_mail(subject , message ,email_from ,[self.email])
+            # send_mail(subject , message ,email_from ,[self.email])
             print("finished sending")
         except Exception as e:
             print(e)
@@ -40,7 +40,7 @@ class SendForgotOTP(threading.Thread):
             message = f"The OTP to reset your password is {otp} \nIts valid only for 2 mins."
             email_from = settings.EMAIL_HOST_USER
             print("started sending")
-            send_mail(subject , message ,email_from ,[self.email])
+            # send_mail(subject , message ,email_from ,[self.email])
             print("finished sending")
         except Exception as e:
             print(e)

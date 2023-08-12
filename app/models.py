@@ -6,7 +6,6 @@ from django.db import models
 
 class LocationCategoryModel(BaseModel):
     location_type = models.CharField(max_length=50)
-    description = models.TextField(null=True, blank=True)
     def __str__(self):
         return self.location_type
     class Meta:
@@ -39,7 +38,6 @@ class LocationInchargeModel(BaseModel):
 
 class PersonTypeModel(BaseModel):
     person_type = models.CharField(max_length=50)
-    description = models.TextField(null=True, blank=True)
     def __str__(self):
         return self.person_type
     class Meta:
@@ -48,11 +46,12 @@ class PersonTypeModel(BaseModel):
 
 class PersonModel(BaseModel):
     name = models.CharField(max_length=50)
-    type = models.ForeignKey(LocationCategoryModel, related_name="person_type", on_delete=models.CASCADE)
+    category = models.ManyToManyField(PersonTypeModel)
     address = models.TextField(null=True, blank=True)
-    photo = models.ImageField(upload_to="person", height_field=None, width_field=None, max_length=None, null=True, blank=True)
+    photo = models.ImageField(upload_to="person", height_field=None, width_field=None, max_length=None)
     description = models.TextField(null=True, blank=True)
     def __str__(self):
         return self.name
     class Meta:
         db_table = 'person'
+
