@@ -47,3 +47,8 @@ class PoliceStationModelSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(e)
         return ba
+
+class PoliceStationNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PoliceStationModel
+        fields = ["name"]

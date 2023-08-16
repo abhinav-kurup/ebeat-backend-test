@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .serializers_main import *
 from .models import *
 
 
@@ -19,9 +20,11 @@ class emailSerializer(serializers.Serializer):
 
 
 class BeatOfficerProfileSerializer(serializers.ModelSerializer):
+    beat_area = BeatAreaDropdownSerializer()
+    police_station = PoliceStationNameSerializer()
     class Meta:
         model = BeatOfficerModel
-        exclude = ["created_at", "updated_at"]
+        fields = ["name", "email", "phone", "profile_pic", "service_number", "dob", "tid", "police_station", "beat_area"]
 
 
 class BOPersonalDetails(serializers.Serializer):
@@ -29,3 +32,4 @@ class BOPersonalDetails(serializers.Serializer):
     password = serializers.CharField(required = True)
     address = serializers.CharField(required = True)
     profile_pic = serializers.ImageField(required = True)
+    dob = serializers.DateField(required = True)

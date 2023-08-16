@@ -2,14 +2,23 @@ from django.contrib import admin
 from .models import *
 
 
-class SummonWarrentModelAdmin(admin.ModelAdmin):
+class CourtOrderModelAdmin(admin.ModelAdmin):
     list_display = [ "order_id", "category", "police_station", "due_date" ]
     list_filter = [ "category", "police_station"]
     search_fields = ["order_id"]
-admin.site.register(SummonWarrentModel, SummonWarrentModelAdmin)
+admin.site.register(CourtOrderModel, CourtOrderModelAdmin)
 
 admin.site.register(BeatOfficerLogs)
 
 admin.site.register(LoactionVisitModel)
 
 admin.site.register(PersonVisitModel)
+
+
+class ProclaimationImageModelAdmin(admin.StackedInline):
+    model = ProclaimaitonImagesModel
+class ProclaimationModelAdmin(admin.ModelAdmin):
+    list_display = ["order_id", "name", "due_date"]
+    search_fields = ["order_id"]
+    inlines = [ProclaimationImageModelAdmin]
+admin.site.register(ProclaimationModel, ProclaimationModelAdmin)

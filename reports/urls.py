@@ -19,7 +19,7 @@ urlpatterns = [
 	path('app/court-order/<pk>/', app_court_order_detail, name="app-get-court-order-details"),
     
 	# Logs
-	path('app/calendar-view/<mo>/<yr>/', get_log_dates, name="app-calendar-view"),
+	path('app/calendar-view/<mo>/<yr>/', calendar_view, name="app-calendar-view"),
 	path('app/add-log/', app_add_logs, name="app-add-log"),
 	path('app/get-logs/<dt>/', app_get_logs, name="app-get-logs"),
 

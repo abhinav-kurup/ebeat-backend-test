@@ -25,6 +25,8 @@ def bo_login(request):
             bo = BeatOfficerModel.objects.get(email=email)
             if not bo:
                 return Response({"error":"Account does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            if bo.beat_area == None:
+                return Response({"error": "You are not assigned any Beat Area"}, status=status.HTTP_409_CONFLICT)
             user = authenticate(email=email, password=password)
             if not user:
                 return Response({"error":"Incorrect password"}, status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -107,6 +109,7 @@ def bo_personal_details(request):
             bo.name = ser.validated_data["name"]
             bo.address = ser.validated_data["address"]
             bo.profile_pic = ser.validated_data["profile_pic"]
+            bo.dob = ser.validated_data["dob"]
             bo.set_password(ser.validated_data["password"])
             bo.save()
             return Response({"message": "Profile Updated"}, status=status.HTTP_202_ACCEPTED)

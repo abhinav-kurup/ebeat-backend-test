@@ -82,56 +82,90 @@ class PersonDetailModelSerializer(serializers.ModelSerializer):
         return last
 
 
+class ApprovalModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AddEditModel
+        fields = ["name", "address", "description"]
+
 
 class AppAddLocationSerializer(serializers.Serializer):
-    name = serializers.CharField(required = True)
-    latitude = serializers.FloatField(required = True)
-    longitude = serializers.FloatField(required = True)
-    address = serializers.CharField(required = True)
-    type = serializers.CharField(required = True)
-    description = serializers.CharField(required = True)
-    photo = serializers.ImageField(required = True)
-    incharge_name = serializers.CharField(required = True)
-    incharge_contact = serializers.CharField(required = True)
-    incharge_description = serializers.CharField(required = True)
+    name = serializers.CharField(required = False)
+    loc_id = serializers.CharField(required = False)
+    latitude = serializers.FloatField(required = False)
+    longitude = serializers.FloatField(required = False)
+    address = serializers.CharField(required = False)
+    category = serializers.CharField(required = False)
+    description = serializers.CharField(required = False)
+    photo = serializers.ImageField(required = False)
+    BO = serializers.UUIDField(required = False)
+    incharge_name = serializers.CharField(required = False)
+    incharge_contact = serializers.CharField(required = False)
+    incharge_description = serializers.CharField(required = False)
     def create(self, validated_data):
-        new_location = LocationModel.objects.create(
-            name = validated_data["name"],
-            type = LocationCategoryModel.objects.get(location_type = validated_data["type"]),
-            location = Point(validated_data["longitude"],validated_data["latitude"]),
-            photo = validated_data["photo"],
-            address = validated_data["address"],
-            description = validated_data["description"],
+        user = self.context['user']
+        new_location = AddEditModel.objects.create(
+            approval_type = "LOCATION",
+            approval_status = "PENDING",
+            BO =  BeatOfficerModel.objects.get(email= user.email),
         )
+        if 'loc_id' in validated_data:
+            new_location.chaing_id = validated_data['loc_id']
+        if 'name' in validated_data:
+            new_location.name = validated_data['name']
+        if 'latitude' in validated_data:
+            new_location.latitude = validated_data['latitude']
+        if 'longitude' in validated_data:
+            new_location.longitude = validated_data['longitude']
+        if 'category' in validated_data:
+            new_location.category = validated_data['category']
+        if 'description' in validated_data:
+            new_location.description = validated_data['description']
+        if 'address' in validated_data:
+            new_location.address = validated_data['address']
+        if 'photo' in validated_data:
+            new_location.photo = validated_data['photo']
+        if 'incharge_name' in validated_data:
+            new_location.incharge_name = validated_data['incharge_name']
+        if 'incharge_contact' in validated_data:
+            new_location.incharge_contact = validated_data['incharge_contact']
+        if 'incharge_description' in validated_data:
+            new_location.incharge_description = validated_data['incharge_description']
         new_location.save()
-        new_incharge = LocationInchargeModel.objects.create(
-            name = validated_data["incharge_name"],
-            location = new_location,
-            contact = validated_data["incharge_contact"],
-            description = validated_data["incharge_description"],
-        )
-        new_incharge.save()
         return new_location
 
 
 class AppAddPersonSerializer(serializers.Serializer):
-    name = serializers.CharField(required = True)
-    latitude = serializers.FloatField(required = True)
-    longitude = serializers.FloatField(required = True)
-    address = serializers.CharField(required = True)
-    type = serializers.CharField(required = True)
-    description = serializers.CharField(required = True)
+    name = serializers.CharField(required = False)
+    person_id = serializers.CharField(required = False)
+    latitude = serializers.FloatField(required = False)
+    longitude = serializers.FloatField(required = False)
+    address = serializers.CharField(required = False)
+    category = serializers.CharField(required = False)
+    description = serializers.CharField(required = False)
     photo = serializers.ImageField(required = False)
+    BO = serializers.UUIDField(required = False) 
     def create(self, validated_data):
-        new_person = PersonModel.objects.create(
-            name = validated_data["name"],
-            location = Point(validated_data["longitude"],validated_data["latitude"]),
-            # photo = validated_data["photo"],
-            address = validated_data["address"],
-            description = validated_data["description"],
+        user = self.context['user']
+        new_person = AddEditModel.objects.create(
+            approval_type = "PERSON",
+            approval_status = "PENDING",
+            BO =  BeatOfficerModel.objects.get(email= user.email),
         )
-        if validated_data["photo"]:
-            new_person.photo = validated_data["photo"]
+        if 'person_id' in validated_data:
+            new_person.chaing_id = validated_data['person_id']
+        if 'name' in validated_data:
+            new_person.name = validated_data['name']
+        if 'latitude' in validated_data:
+            new_person.latitude = validated_data['latitude']
+        if 'longitude' in validated_data:
+            new_person.longitude = validated_data['longitude']
+        if 'category' in validated_data:
+            new_person.category = validated_data['category']
+        if 'description' in validated_data:
+            new_person.description = validated_data['description']
+        if 'address' in validated_data:
+            new_person.address = validated_data['address']
+        if 'photo' in validated_data:
+            new_person.photo = validated_data['photo']
         new_person.save()
         return new_person
-

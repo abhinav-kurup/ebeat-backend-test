@@ -93,9 +93,9 @@ class AddPersonVisitSerializer(serializers.Serializer):
     
 
 
-class SummonWarrentModelDetailSerializer(serializers.ModelSerializer):
+class CourtOrderModelDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SummonWarrentModel
+        model = CourtOrderModel
         fields = ["id", "order_id", "name", "address", "due_date", "category"]
 
 

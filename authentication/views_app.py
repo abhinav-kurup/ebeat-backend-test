@@ -16,11 +16,10 @@ def app_get_beat_areas(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
         reg = bo.police_station.area
-        queryset = BeatAreaModel.objects.filter(region__within=reg, is_active=True).values_list("name", flat=True)
+        queryset = BeatAreaModel.objects.filter(area__within=reg, is_active=True).values_list("name", flat=True)
         return Response(list(queryset), status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 @api_view(["GET"])

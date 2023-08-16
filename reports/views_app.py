@@ -8,6 +8,8 @@ from django.core.paginator import Paginator
 from base.utils import paginate
 from django.db.models import Q
 from authentication.models import *
+from app.models import AddEditModel
+from app.serializers import ApprovalModelSerializer
 from .serializers import *
 from .threads import *
 from .models import *
@@ -132,10 +134,10 @@ def get_person_report_single(request, pk):
 @authentication_classes([JWTAuthentication])
 def app_court_order_detail(request, pk):
     try:
-        if not SummonWarrentModel.objects.filter(id=pk):
+        if not CourtOrderModel.objects.filter(id=pk):
             return Response({"error": "Invalid Order ID"})
-        queryset = SummonWarrentModel.objects.get(order_id=pk)
-        ser = SummonWarrentModelDetailSerializer(queryset)
+        queryset = CourtOrderModel.objects.get(order_id=pk)
+        ser = CourtOrderModelDetailSerializer(queryset)
         return Response(ser.data, status=status.HTTP_200_OK)
     except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -154,9 +156,15 @@ def app_get_logs(request, dt):
         s2 = PersonVisitModelSerializer(person_visits, many=True)
         logs = BeatOfficerLogs.objects.filter(BO = bo, created_at__date = dt)
         s3 = BeatOfficerLogsModelSerializer(logs,many=True)
+        add_locations = AddEditModel.objects.filter(approval_type="LOCATION", BO=bo, created_at__date=dt)
+        s4 = ApprovalModelSerializer(add_locations, many=True)
+        add_person = AddEditModel.objects.filter(approval_type="PERSON", BO=bo, created_at__date=dt)
+        s5 = ApprovalModelSerializer(add_person, many=True)
         payload["location_visits"] = s1.data
         payload["person_visits"] = s2.data
         payload["logs"] = s3.data
+        payload["add_location"] = s4.data
+        payload["add_person"] = s5.data
         return Response(payload, status=status.HTTP_200_OK)
     except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -182,7 +190,7 @@ def app_add_logs(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
-def get_log_dates(request, mo, yr):
+def calendar_view(request, mo, yr):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
         query_date = datetime(yr, mo, 1).date()    # Filter objects by month and year using the __month and __year lookups

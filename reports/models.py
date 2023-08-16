@@ -22,7 +22,7 @@ class PersonVisitModel(BaseVisit):
         db_table = 'person_visit'
 
 
-class SummonWarrentModel(BaseModel):
+class CourtOrderModel(BaseModel):
     class CategoryType(models.TextChoices):
         NOTICE = "NOTICE", "Notice"
         SUMMON = "SUMMON", "Summon"
@@ -48,6 +48,24 @@ class SummonWarrentModel(BaseModel):
     class Meta:
         db_table = 'court_orders'
 
+
+class ProclaimationModel(BaseModel):
+    order_id = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    due_date = models.DateField(auto_now=False, auto_now_add=False)
+    def __str__(self):
+        return self.order_id
+    class Meta:
+        db_table = 'proclaimation'
+
+
+class ProclaimaitonImagesModel(BaseModel):
+    proclaimation = models.ForeignKey(ProclaimationModel, related_name="proclaimation_images", on_delete=models.CASCADE)
+    img = models.ImageField(upload_to="proclaimation", height_field=None, width_field=None, max_length=None)
+    def __str__(self):
+        return self.order_id
+    class Meta:
+        db_table = 'proclaimation_images'
 
 
 class BeatOfficerLogs(BaseModel):

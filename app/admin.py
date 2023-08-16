@@ -21,3 +21,6 @@ class PersonModelAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     list_filter = ["is_active"]
     search_fields = ["name", "address"]
 admin.site.register(PersonModel, PersonModelAdmin)
+
+
+admin.site.register(AddEditModel)
