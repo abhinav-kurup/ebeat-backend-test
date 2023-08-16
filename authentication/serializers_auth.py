@@ -24,12 +24,8 @@ class BeatOfficerProfileSerializer(serializers.ModelSerializer):
         exclude = ["created_at", "updated_at"]
 
 
-# class signupSerializer(serializers.Serializer):
-#     name = serializers.CharField(required = True)
-#     email = serializers.EmailField(required = True)
-#     phone = serializers.CharField(required = True)
-#     password = serializers.CharField(required = True)
-#     service_id = serializers.CharField(required = False)
-#     post = serializers.CharField(required = False)
-#     police_station = serializers.CharField(required = False)
-
+class BOPersonalDetails(serializers.Serializer):
+    name = serializers.CharField(required = True)
+    password = serializers.CharField(required = True)
+    address = serializers.CharField(required = True)
+    profile_pic = serializers.ImageField(required = True)

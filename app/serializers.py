@@ -11,11 +11,6 @@ class LocationCategoryModelSerializer(serializers.ModelSerializer):
         model = LocationCategoryModel
         fields = ["location_type"]
 
-class PersonCategoryModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersonTypeModel
-        fields = ["person_type"]
-
 
 class LocationInchargeModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,8 +51,8 @@ class LocationDetailModelSerializer(serializers.ModelSerializer):
     def get_beat_area(self, obj):
         try:
             beat = None
-            if BeatAreaModel.objects.filter(region__contains = obj.location).exists():
-                ser = BeatAreaDropdownSerializer(BeatAreaModel.objects.get(region__contains = obj.location))
+            if BeatAreaModel.objects.filter(area__contains = obj.location).exists():
+                ser = BeatAreaDropdownSerializer(BeatAreaModel.objects.get(area__contains = obj.location))
                 beat = ser.data
         except Exception as e:
             print(e)
@@ -67,13 +62,12 @@ class LocationDetailModelSerializer(serializers.ModelSerializer):
 class PersonModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationModel
-        fields = ["id", "name", "address", "location"]
+        fields = ["id", "name", "address"]
 
 
 class PersonDetailModelSerializer(serializers.ModelSerializer):
     last_visited = serializers.SerializerMethodField()
-    beat_area = serializers.SerializerMethodField()
-    type = PersonCategoryModelSerializer()
+    # beat_area = serializers.SerializerMethodField()
     class Meta:
         model = PersonModel
         exclude = ["created_at", "updated_at", "is_active"]
@@ -86,15 +80,7 @@ class PersonDetailModelSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(e)
         return last
-    def get_beat_area(self, obj):
-        try:
-            beat = None
-            if BeatAreaModel.objects.filter(region__contains = obj.location).exists():
-                ser = BeatAreaDropdownSerializer(BeatAreaModel.objects.get(region__contains = obj.location))
-                beat = ser.data
-        except Exception as e:
-            print(e)
-        return beat
+
 
 
 class AppAddLocationSerializer(serializers.Serializer):
@@ -139,7 +125,6 @@ class AppAddPersonSerializer(serializers.Serializer):
     def create(self, validated_data):
         new_person = PersonModel.objects.create(
             name = validated_data["name"],
-            type = PersonTypeModel.objects.get(person_type = validated_data["type"]),
             location = Point(validated_data["longitude"],validated_data["latitude"]),
             # photo = validated_data["photo"],
             address = validated_data["address"],

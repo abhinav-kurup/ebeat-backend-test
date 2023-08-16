@@ -24,14 +24,26 @@ def app_get_beat_areas(request):
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def app_get_beat_area_polygons(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
         req = bo.police_station.area
         queryset = BeatAreaModel.objects.filter(area__within=req, is_active=True)
         ser = BeatAreaPolygonSerializer(queryset, many=True)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def app_get_bo_profile(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
+        ser = BeatOfficerProfileSerializer(bo)
         return Response(ser.data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

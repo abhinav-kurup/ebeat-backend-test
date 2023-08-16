@@ -4,7 +4,6 @@ from .models import *
 
 
 admin.site.register(LocationCategoryModel)
-admin.site.register(PersonTypeModel)
 
 
 class LocationInchargeModelAdmin(admin.StackedInline):

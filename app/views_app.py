@@ -7,7 +7,6 @@ from rest_framework import status
 from django.core.paginator import Paginator
 from base.utils import paginate
 from django.db.models import Q
-from authentication.permissions import *
 from authentication.models import *
 from .serializers import *
 from .threads import *
@@ -21,8 +20,8 @@ from .models import *
 def app_get_location_types(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
-        region = bo.police_station.region
-        queryset = LocationModel.objects.filter(location__within=region, is_active=True).distinct('type').values_list("type__location_type", flat=True)
+        reg = bo.police_station.area
+        queryset = LocationModel.objects.filter(location__within=reg, is_active=True).distinct('type').values_list("type__location_type", flat=True)
         return Response(list(queryset), status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -34,8 +33,8 @@ def app_get_location_types(request):
 def app_get_locations(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
-        region = bo.police_station.region
-        queryset = LocationModel.objects.filter(location__within=region, is_active=True)
+        reg = bo.police_station.area
+        queryset = LocationModel.objects.filter(location__within=reg, is_active=True)
         if request.query_params.get('search'):
             search_param = request.query_params.get('search')
             filter_condition = Q(name__icontains=search_param) | Q(address__icontains=search_param)
@@ -66,35 +65,7 @@ class SingleLocationView(RetrieveAPIView):
     lookup_field = "id"
 
 
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([JWTAuthentication])
-# @api_view(["POST"])
-# def app_add_location(request):
-#     try:
-#         data = request.data
-#         ser = AppAddLocationSerializer(data=data)
-#         if ser.is_valid():
-#             ser.save()
-#             return Response({"message":"Location Added"}, status=status.HTTP_201_CREATED)
-#         return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
-#     except Exception as e:
-#         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 ######################################################################################################################################################
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-@authentication_classes([JWTAuthentication])
-def app_get_person_types(request):
-    try:
-        bo = BeatOfficerModel.objects.get(email=request.user.email)
-        region = bo.police_station.region
-        queryset = PersonModel.objects.filter(location__within=region, is_active=True).distinct('type').values_list("type__person_type", flat=True)
-        return Response(list(queryset), status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])

@@ -66,6 +66,7 @@ class BeatAreaModel(BasePolygon):
 class BeatOfficerModel(BaseUser):
     police_station = models.ForeignKey(PoliceStationModel, related_name="Police_Station_BOs", on_delete=models.CASCADE)
     beat_area = models.ForeignKey(BeatAreaModel, related_name="bo_of_ba", on_delete=models.SET_NULL, null=True, blank=True)
+    tid = models.CharField(max_length=10)
     def __str__(self):
         return self.email
     class Meta:
@@ -79,33 +80,4 @@ class TempAssignmentModel(BaseModel):
         return self.officer.email
     class Meta:
         db_table = 'officer_temp_assignmet'
-
-
-
-class AddEditModel(BaseModel):
-    class ApprovalForType(models.TextChoices):
-        LOCATION = "LOCATION", "Location"
-        PERSON = "PERSON", "Person"
-    class NewApproval(models.TextChoices):
-        PENDING = "PENDING", "Pending"
-        APPROVED = "APPROVED", "Approved"
-        REJECTED = "REJECTED", "Rejected"
-    approval_type = models.CharField(max_length=12, choices=ApprovalForType.choices)
-    approval_status = models.CharField(max_length=12, choices=NewApproval.choices, default=NewApproval.choices[0])
-    chaing_id = models.CharField(max_length=50, null=True, blank=True)
-    name = models.CharField(max_length=50, null=True, blank=True)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    category = models.CharField(max_length=50, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    photo = models.ImageField(upload_to="approvals", null=True, blank=True, max_length=None)
-    incharge_name = models.CharField(max_length=50, null=True, blank=True)
-    incharge_contact = models.CharField(max_length=50, null=True, blank=True)
-    incharge_description = models.CharField(max_length=50, null=True, blank=True)
-    BO = models.ForeignKey(BeatOfficerModel, related_name="bo_req", on_delete=models.DO_NOTHING)
-    def __str__(self):
-        return self.name
-    class Meta:
-        db_table = 'approval_requests'
 

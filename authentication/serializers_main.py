@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.conf import settings
 from .models import *
 
 
@@ -12,7 +11,7 @@ class BeatAreaDropdownSerializer(serializers.ModelSerializer):
 class BeatAreaPolygonSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeatAreaModel
-        fields = ["name", "region", "beat_no"]
+        fields = ["name", "area", "beat_no"]
 
 
 class AddBOSerializer(serializers.Serializer):
@@ -22,17 +21,22 @@ class AddBOSerializer(serializers.Serializer):
     service_number = serializers.CharField(required = True)
 
 
+class BeatOfficerModelSerializer(serializers.ModelSerializer):
+    beat_area = BeatAreaDropdownSerializer()
+    class Meta:
+        model = BeatOfficerModel
+        fields = ["email", "name", "phone", "service_number", "beat_area"]
 
 class BeatAreaRegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeatAreaModel
-        fields = ["region"]
+        fields = ["area"]
 
 class PoliceStationModelSerializer(serializers.ModelSerializer):
     beat_areas = serializers.SerializerMethodField()
     class Meta:
         model = PoliceStationModel
-        fields = ["region", "beat_areas"]
+        fields = ["area", "beat_areas"]
     def get_beat_areas(self, obj):
         try:
             ba = []

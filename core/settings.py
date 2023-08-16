@@ -25,9 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'corsheaders',
-    'channels',
     'rest_framework',
-    'guardian',
+    # 'guardian',
     'rest_framework_simplejwt',
     # 'rest_framework_simplejwt.token_blacklist',
     'rest_framework_gis',
@@ -253,10 +252,10 @@ EMAIL_USE_SSL = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
-]
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'guardian.backends.ObjectPermissionBackend',
+# ]
 
 
 # JAZZMIN_SETTINGS = {

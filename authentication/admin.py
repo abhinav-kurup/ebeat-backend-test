@@ -1,16 +1,15 @@
 from leaflet.admin import LeafletGeoAdminMixin
 from django.contrib import admin
-from guardian.admin import GuardedModelAdmin
 from .models import *
 
 
 class BeatOfficerModelAdmin(admin.ModelAdmin):
-    list_display = ["name", "email", "service_number", "phone"]
+    list_display = ["name", "email", "service_number", "phone", "tid"]
     search_fields = ["name", "email"]
 admin.site.register(BeatOfficerModel, BeatOfficerModelAdmin)
 
 
-class OfficerModelAdmin(GuardedModelAdmin):
+class OfficerModelAdmin(admin.ModelAdmin):
     list_display = ["name", "email", "post", "service_number", "phone"]
     search_fields = ["name", "email"]
 admin.site.register(OfficerModel, OfficerModelAdmin)

@@ -7,7 +7,6 @@ from rest_framework import status
 from django.core.paginator import Paginator
 from base.utils import paginate
 from django.db.models import Q
-from authentication.permissions import *
 from authentication.models import *
 from .serializers import *
 from .threads import *
@@ -24,13 +23,12 @@ def app_add_location_visit(request):
         data = request.data
         ser = AddLocationVisitSerializer(data=data)
         if ser.is_valid():
-            location_visit = ser.create(ser.validated_data,request.user)
+            location_visit = ser.create(ser.validated_data, request.user)
             location_visit.save()
             return Response({"message":"Location Report created"}, status=status.HTTP_201_CREATED)
         return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 @api_view(["GET"])
@@ -64,14 +62,14 @@ def app_get_location_visits(request):
 
 @api_view(["GET"])
 def get_location_visit_detail(request, pk):
-        try:
-            if not LoactionVisitModel.objects.filter(id=pk):
-                return Response({"error": "Invalid Locaiton Visit ID"}, status=status.HTTP_403_FORBIDDEN)
-            queryset = LoactionVisitModel.objects.filter(id = pk)
-            ser = LocationVisitDetailModelSerializer(queryset, many=True)
-            return Response(ser.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        if not LoactionVisitModel.objects.filter(id=pk):
+            return Response({"error": "Invalid Locaiton Visit ID"}, status=status.HTTP_403_FORBIDDEN)
+        queryset = LoactionVisitModel.objects.filter(id = pk)
+        ser = LocationVisitDetailModelSerializer(queryset, many=True)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -92,7 +90,7 @@ def app_add_person_visit(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])   
-def app_get_person_reports(request):
+def app_get_person_visits(request):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)
         queryset = PersonVisitModel.objects.filter(BO = bo, is_active=True)
@@ -182,8 +180,8 @@ def app_add_logs(request):
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def get_log_dates(request, mo, yr):
     try:
         bo = BeatOfficerModel.objects.get(email=request.user.email)

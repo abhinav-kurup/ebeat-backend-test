@@ -9,19 +9,17 @@ urlpatterns = [
 	path('app/get-location-types/', app_get_location_types, name="app-get-location-types"),
 	path('app/get-locations/', app_get_locations, name="app-get-locations"),
 	# path('app/add-location/', app_add_location, name="app-add-location"),
-
-	path('app/get-person-types/', app_get_person_types, name="app-get-person-types"),
 	path('app/get-people/', app_get_people, name="app-get-people"),
 
+# Common
 	path('location/<id>/', SingleLocationView.as_view(), name="single-location"),
 	path('person/<id>/', SinglePersonView.as_view(), name="single-person"),
-    path('app/add-person/', app_add_person, name="app-add-person"),
 
 # WEB
 	path('web/get-location-types/', web_get_location_types, name="web-get-location-types"),
-	# path('web/get-locations/', web_get_locations, name="web-get-locations"),
+	path('web/get-locations/', web_get_locations, name="web-get-locations"),
+	path('web/get-location-previous-incharge/<lo_id>/', web_get_previous_location_incharge, name="web-get-location-previous-incharge"),
 	
-	
-	path('web/test/', test, name="web-test"),
+	path('web/get-people/', web_get_people, name="web-get-people"),
 
 ]

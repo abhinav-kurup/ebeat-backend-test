@@ -11,32 +11,6 @@ from .threads import *
 from .models import *
 
 
-
-# @api_view(["POST"])
-# def signUp(request):
-#     try:
-#         data = request.data
-#         serializer = signupSerializer(data=data)
-#         if serializer.is_valid():
-#             email = serializer.validated_data["email"]
-#             if OfficerModel.objects.filter(email=email).first():
-#                 return Response({"message":"Acount already exists."}, status=status.HTTP_406_NOT_ACCEPTABLE)
-#             new_customer = OfficerModel.objects.create(
-#                 email = email,
-#                 name = serializer.validated_data["name"],
-#                 phone = serializer.validated_data["phone"],
-#                 post = serializer.validated_data["post"],
-#                 service_number = serializer.validated_data["service_id"],
-#                 # police_station = PoliceStationModel.objects.get(id = serializer.validated_data["police_station"])
-#             )
-#             new_customer.set_password(serializer.validated_data["password"])
-#             new_customer.save()
-#             return Response({"message":"Account created"}, status=status.HTTP_201_CREATED)
-#         return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-#     except Exception as e:
-#         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 ###################################################################################################################
 
 
@@ -48,7 +22,8 @@ def bo_login(request):
         if serializer.is_valid():
             email = serializer.validated_data["email"]
             password = serializer.validated_data["password"]
-            if not BeatOfficerModel.objects.filter(email=email).exists():
+            bo = BeatOfficerModel.objects.get(email=email)
+            if not bo:
                 return Response({"error":"Account does not exist"}, status=status.HTTP_404_NOT_FOUND)
             user = authenticate(email=email, password=password)
             if not user:
@@ -56,7 +31,7 @@ def bo_login(request):
             jwt_token = RefreshToken.for_user(user)
             payload = {}
             payload["message"] = "Login Successfull"
-            payload["boid"] = user.id
+            payload["tid"] = bo.tid
             payload["token"] = str(jwt_token.access_token)
             return Response(payload, status=status.HTTP_202_ACCEPTED)
         return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -102,6 +77,42 @@ def bo_reset(request):
     except Exception as e:
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(["POST"])
+def bo_new(request, joining_code):
+    try:
+        ser = emailSerializer(data=request.data)
+        if ser.is_valid():
+            email = ser.validated_data["email"]
+            if not BeatOfficerModel.objects.filter(email=email).exists():
+                return Response({"error":"Account does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            user = authenticate(email=email, password=joining_code)
+            if not user:
+                return Response({"error":"Incorrect password"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            jwt_token = RefreshToken.for_user(user)
+            return Response({"message":"Login Successfull, enter personal details", "token":str(jwt_token.access_token)}, status=status.HTTP_202_ACCEPTED)
+        return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def bo_personal_details(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
+        ser = BOPersonalDetails(data=request.data)
+        if ser.is_valid():
+            bo.name = ser.validated_data["name"]
+            bo.address = ser.validated_data["address"]
+            bo.profile_pic = ser.validated_data["profile_pic"]
+            bo.set_password(ser.validated_data["password"])
+            bo.save()
+            return Response({"message": "Profile Updated"}, status=status.HTTP_202_ACCEPTED)
+        return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ###################################################################################################################
 
