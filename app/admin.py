@@ -23,4 +23,5 @@ class PersonModelAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
 admin.site.register(PersonModel, PersonModelAdmin)
 
 
-admin.site.register(AddEditModel)
+admin.site.register(AddEditLocationModel)
+admin.site.register(AddEditPersonModel)

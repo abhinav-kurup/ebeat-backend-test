@@ -17,7 +17,7 @@ class AddLocationVisitSerializer(serializers.Serializer):
     def create(self, validated_data,user):
         location_visit = LoactionVisitModel.objects.create(
             BO = BeatOfficerModel.objects.get(email= user.email),
-            location = LocationModel.objects.get(name = validated_data["location"]),
+            location = LocationModel.objects.get(id = validated_data["location"]),
             situation = validated_data["situation"],
         )
         if validated_data["img"]:
@@ -29,6 +29,30 @@ class AddLocationVisitSerializer(serializers.Serializer):
         location_visit.save()
         return location_visit
 
+
+class AddOfflineLocationVisitSerializer(serializers.Serializer):
+    situation = serializers.FloatField(required = True)
+    comments = serializers.CharField(required = False)
+    location = serializers.CharField(required = True)
+    created_at = serializers.DateTimeField(required = True)
+    audio = serializers.FileField(required = False)
+    img = serializers.ImageField(required = False)
+    def create(self, validated_data,user):
+        location_visit = LoactionVisitModel.objects.create(
+            BO = BeatOfficerModel.objects.get(email= user.email),
+            location = LocationModel.objects.get(id = validated_data["location"]),
+            situation = validated_data["situation"],
+        )
+        if validated_data["created_at"]:
+            location_visit.created_at = validated_data["created_at"]
+        if validated_data["img"]:
+            location_visit.img = validated_data["img"]
+        if validated_data["audio"]:
+            location_visit.audio = validated_data["audio"]
+        if validated_data["comments"]:
+            location_visit.comments = validated_data["comments"]
+        location_visit.save()
+        return location_visit
 
 class LoactionVisitLocationModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -79,7 +103,7 @@ class AddPersonVisitSerializer(serializers.Serializer):
     def create(self, validated_data,user):
         person_visit = PersonVisitModel.objects.create(
             BO = BeatOfficerModel.objects.get(email= user.email),
-            person = PersonModel.objects.get(name = validated_data["person"]),
+            person = PersonModel.objects.get(id = validated_data["person"]),
             situation = validated_data["situation"],
         )
         if validated_data["img"]:
@@ -91,12 +115,28 @@ class AddPersonVisitSerializer(serializers.Serializer):
         person_visit.save()
         return person_visit
     
+class CourtOrderModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourtOrderModel
+        fields = ["id","order_id","category","due_date"]
+
+class CourtOrderChangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourtOrderModel
+        fields = ["order_status","comment","visted_at","photo"]
+    def update(self, instance, validated_data):
+        instance.order_status = validated_data["order_status"]
+        instance.photo = validated_data["photo"]
+        instance.comment = validated_data["comment"]
+        instance.visted_at = datetime.now()
+        instance.save()
+        return instance
 
 
 class CourtOrderModelDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourtOrderModel
-        fields = ["id", "order_id", "name", "address", "due_date", "category"]
+        fields = ["order_id", "order_name", "address", "due_date", "category"]
 
 
 class BeatOfficerLogsModelSerializer(serializers.ModelSerializer):

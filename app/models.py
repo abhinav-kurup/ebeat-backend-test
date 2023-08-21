@@ -57,20 +57,14 @@ class PersonModel(BaseModel):
         db_table = 'person'
 
 
-class AddEditModel(BaseModel):
-    class ApprovalForType(models.TextChoices):
-        LOCATION = "LOCATION", "Location"
-        PERSON = "PERSON", "Person"
+class AddEditLocationModel(BaseModel):
     class NewApproval(models.TextChoices):
         PENDING = "PENDING", "Pending"
         APPROVED = "APPROVED", "Approved"
         REJECTED = "REJECTED", "Rejected"
-    approval_type = models.CharField(max_length=12, choices=ApprovalForType.choices)
     approval_status = models.CharField(max_length=12, choices=NewApproval.choices, default=NewApproval.choices[0])
     chaing_id = models.CharField(max_length=50, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     category = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -78,8 +72,35 @@ class AddEditModel(BaseModel):
     incharge_name = models.CharField(max_length=50, null=True, blank=True)
     incharge_contact = models.CharField(max_length=50, null=True, blank=True)
     incharge_description = models.CharField(max_length=50, null=True, blank=True)
-    BO = models.ForeignKey(BeatOfficerModel, related_name="bo_req", on_delete=models.DO_NOTHING)
+    BO = models.ForeignKey(BeatOfficerModel, related_name="bo_req_loc", on_delete=models.DO_NOTHING)
     def __str__(self):
         return self.name
     class Meta:
-        db_table = 'approval_requests'
+        db_table = 'location_approval_requests'
+
+
+class AddEditPersonModel(BaseModel):
+    class NewApproval(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+    approval_status = models.CharField(max_length=12, choices=NewApproval.choices, default=NewApproval.choices[0])
+    chaing_id = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    beat = models.ForeignKey(BeatAreaModel, related_name="edit_person_in_ba", on_delete=models.CASCADE,null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    photo = models.ImageField(upload_to="approvals", null=True, blank=True, max_length=None)
+    arm_licenses = models.BooleanField(default=False)
+    bad_character = models.BooleanField(default=False)
+    senior_citizen = models.BooleanField(default=False)
+    budding_criminals = models.BooleanField(default=False)
+    suspected_brothels = models.BooleanField(default=False)
+    proclaimed_offenders = models.BooleanField(default=False)
+    criminal_of_known_areas = models.BooleanField(default=False)
+    externee_more_than_2_crimes = models.BooleanField(default=False)
+    BO = models.ForeignKey(BeatOfficerModel, related_name="bo_req_per", on_delete=models.DO_NOTHING)
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table = 'person_approval_requests'

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='personmodel',
             name='beat',
-            field=models.ForeignKey(default='f4cf0a88-29b9-403c-9bd5-359cd65b1e34', on_delete=django.db.models.deletion.CASCADE, related_name='person_in_ba', to='authentication.beatareamodel'),
+            field=models.ForeignKey(default='1391ea0c-d974-42be-bf42-002efc2944b1', on_delete=django.db.models.deletion.CASCADE, related_name='person_in_ba', to='authentication.beatareamodel'),
             preserve_default=False,
         ),
     ]

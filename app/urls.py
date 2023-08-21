@@ -7,9 +7,10 @@ urlpatterns = [
 
 # APP
 	path('app/get-location-types/', app_get_location_types, name="app-get-location-types"),
+    
 	path('app/get-locations/', app_get_locations, name="app-get-locations"),
-	# path('app/add-location/', app_add_location, name="app-add-location"),
 	path('app/get-people/', app_get_people, name="app-get-people"),
+    
     path('app/add-locations/',LocationAddEdit.as_view() , name="app-add-locations"),
     path('app/add-person/', PersonAddEdit.as_view(), name="app-add-person"),
 

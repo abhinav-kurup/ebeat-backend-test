@@ -62,7 +62,7 @@ class LocationDetailModelSerializer(serializers.ModelSerializer):
 class PersonModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationModel
-        fields = ["id", "name", "address"]
+        fields = ["id", "name", "address", "photo"]
 
 
 class PersonDetailModelSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class PersonDetailModelSerializer(serializers.ModelSerializer):
 
 class ApprovalModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AddEditModel
+        model = AddEditLocationModel
         fields = ["name", "address", "description"]
 
 
@@ -103,8 +103,7 @@ class AppAddLocationSerializer(serializers.Serializer):
     incharge_description = serializers.CharField(required = False)
     def create(self, validated_data):
         user = self.context['user']
-        new_location = AddEditModel.objects.create(
-            approval_type = "LOCATION",
+        new_location = AddEditLocationModel.objects.create(
             approval_status = "PENDING",
             BO =  BeatOfficerModel.objects.get(email= user.email),
         )
@@ -137,35 +136,53 @@ class AppAddLocationSerializer(serializers.Serializer):
 class AppAddPersonSerializer(serializers.Serializer):
     name = serializers.CharField(required = False)
     person_id = serializers.CharField(required = False)
-    latitude = serializers.FloatField(required = False)
-    longitude = serializers.FloatField(required = False)
+    beat = serializers.UUIDField(required = False)
     address = serializers.CharField(required = False)
-    category = serializers.CharField(required = False)
     description = serializers.CharField(required = False)
     photo = serializers.ImageField(required = False)
     BO = serializers.UUIDField(required = False) 
+    arm_licenses = serializers.BooleanField(required=False)
+    bad_character = serializers.BooleanField(required=False)
+    senior_citizen = serializers.BooleanField(required=False)
+    budding_criminals = serializers.BooleanField(required=False)
+    suspected_brothels = serializers.BooleanField(required=False)
+    proclaimed_offenders = serializers.BooleanField(required=False)
+    criminal_of_known_areas = serializers.BooleanField(required=False)
+    externee_more_than_2_crimes = serializers.BooleanField(required=False)
     def create(self, validated_data):
         user = self.context['user']
-        new_person = AddEditModel.objects.create(
-            approval_type = "PERSON",
+        Bid =  BeatOfficerModel.objects.get(email= user.email)
+        new_person = AddEditPersonModel.objects.create(
             approval_status = "PENDING",
             BO =  BeatOfficerModel.objects.get(email= user.email),
+            beat = Bid.beat_area,
+            # photo = validated_data['photo'],
         )
         if 'person_id' in validated_data:
             new_person.chaing_id = validated_data['person_id']
         if 'name' in validated_data:
             new_person.name = validated_data['name']
-        if 'latitude' in validated_data:
-            new_person.latitude = validated_data['latitude']
-        if 'longitude' in validated_data:
-            new_person.longitude = validated_data['longitude']
-        if 'category' in validated_data:
-            new_person.category = validated_data['category']
         if 'description' in validated_data:
             new_person.description = validated_data['description']
         if 'address' in validated_data:
             new_person.address = validated_data['address']
         if 'photo' in validated_data:
             new_person.photo = validated_data['photo']
+        if 'bad_character' in validated_data:
+            new_person.bad_character = validated_data['bad_character']
+        if 'arm_licenses' in validated_data:
+            new_person.arm_licenses = validated_data['arm_licenses']
+        if 'senior_citizen' in validated_data:
+            new_person.senior_citizen = validated_data['senior_citizen']
+        if 'budding_criminals' in validated_data:
+            new_person.budding_criminals = validated_data['budding_criminals']
+        if 'suspected_brothels' in validated_data:
+            new_person.suspected_brothels = validated_data['suspected_brothels']
+        if 'proclaimed_offenders' in validated_data:
+            new_person.proclaimed_offenders = validated_data['proclaimed_offenders']
+        if 'criminal_of_known_areas' in validated_data:
+            new_person.criminal_of_known_areas = validated_data['criminal_of_known_areas']
+        if 'externee_more_than_2_crimes' in validated_data:
+            new_person.externee_more_than_2_crimes = validated_data['externee_more_than_2_crimes']
         new_person.save()
         return new_person

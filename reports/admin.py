@@ -10,7 +10,7 @@ admin.site.register(CourtOrderModel, CourtOrderModelAdmin)
 
 admin.site.register(BeatOfficerLogs)
 
-admin.site.register(LoactionVisitModel)
+
 
 admin.site.register(PersonVisitModel)
 
@@ -22,3 +22,9 @@ class ProclaimationModelAdmin(admin.ModelAdmin):
     search_fields = ["order_id"]
     inlines = [ProclaimationImageModelAdmin]
 admin.site.register(ProclaimationModel, ProclaimationModelAdmin)
+
+
+class LoactionVisitModelAdmin(admin.ModelAdmin):
+    list_display = [ "location",  "created_at","updated_at" ]
+    list_filter = [ "location", "created_at"]
+admin.site.register(LoactionVisitModel, LoactionVisitModelAdmin)

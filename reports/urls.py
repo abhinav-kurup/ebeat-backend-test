@@ -15,9 +15,15 @@ urlpatterns = [
 	path('app/get-person-visits/', app_get_person_visits, name="app-get-person-visits"),
 	path('app/person-visit/<pk>/', get_person_report_single, name="app-get-person-visit-details"),
     
+	#Offline
+	path('app/add-offline-location-visit/', app_add_offline_location_visit, name="app-add-offline-location-visit"),
+    
 	# Court Orders
 	path('app/court-order/<pk>/', app_court_order_detail, name="app-get-court-order-details"),
+    path('app/get-court-orders/', app_get_court_order, name="app-get-court-orders"),
+    path('app/update-court-order/<pk>/', app_update_court_order, name="app-update-court-orders"),
     
+
 	# Logs
 	path('app/calendar-view/<mo>/<yr>/', calendar_view, name="app-calendar-view"),
 	path('app/add-log/', app_add_logs, name="app-add-log"),

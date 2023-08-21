@@ -65,7 +65,20 @@ class SingleLocationView(RetrieveAPIView):
     serializer_class = LocationDetailModelSerializer
     lookup_field = "id"
 
-
+class LocationAddEdit(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def post(self,request):
+        try:
+            data = request.data
+            ser = AppAddLocationSerializer( data=data, context={'user': request.user})
+            if ser.is_valid():
+                # location = AddEditModel.objects.create(ser.validated_data)
+                ser.save()
+                return Response({"message":"Location Added"}, status=status.HTTP_201_CREATED)
+            return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 ######################################################################################################################################################
 
 
@@ -81,9 +94,8 @@ def app_get_people(request):
             filter_condition = Q(name__icontains=search_param) | Q(address__icontains=search_param)
             queryset = queryset.filter(filter_condition)
         if request.query_params.get('person_type'):
-            type_param = request.query_params.get('person_type')
-            if type_param in ["arm_licenses", "bad_character", "senior_citizen", "budding_criminals", "suspected_brothels", "proclaimed_offenders", "criminal_of_known_areas", "externee_more_than_2_crimes"]:
-                queryset.filter(type_param=True)
+            person_type = request.query_params.get('person_type')
+            queryset = PersonModel.objects.filter(**{person_type: True})
         objs = queryset
         page = request.GET.get("page", 1)
         paginator = Paginator(objs, 6)
@@ -118,20 +130,7 @@ class SinglePersonView(RetrieveAPIView):
 #         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class LocationAddEdit(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-    def post(self,request):
-        try:
-            data = request.data
-            ser = AppAddLocationSerializer( data=data, context={'user': request.user})
-            if ser.is_valid():
-                # location = AddEditModel.objects.create(ser.validated_data)
-                ser.save()
-                return Response({"message":"Location Added"}, status=status.HTTP_201_CREATED)
-            return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class PersonAddEdit(APIView):
@@ -140,6 +139,7 @@ class PersonAddEdit(APIView):
     def post(self,request):
         try:
             data = request.data
+            print(data)
             ser = AppAddPersonSerializer( data=data, context={'user': request.user})
             if ser.is_valid():
                 ser.save()
@@ -147,3 +147,5 @@ class PersonAddEdit(APIView):
             return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        

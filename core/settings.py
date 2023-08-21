@@ -72,6 +72,12 @@ TEMPLATES = [
     },
 ]
 
+if os.name == 'nt':
+    VENV_BASE = os.environ['VIRTUAL_ENV']
+    os.environ['PATH'] = os.path.join(VENV_BASE, 'Lib\\site-packages\\osgeo') + ';' + os.environ['PATH']
+    os.environ['PROJ_LIB'] = os.path.join(VENV_BASE, 'Lib\\site-packages\\osgeo\\data\\proj') + ';' + os.environ['PATH']
+
+
 
 # Main Settings
 AUTH_USER_MODEL = 'base.BaseUser'
@@ -143,9 +149,7 @@ MEDIA_ROOT = os.path.join("data")
 
 
 # Geolocaiton Lib Settings
-GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH")
-GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH")
-SPATIALITE_LIBRARY_PATH = config("SPATIALITE_LIBRARY_PATH")
+
 
 
 # CORS

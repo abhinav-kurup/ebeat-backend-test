@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from base.utils import paginate
 from django.db.models import Q
 from authentication.models import *
-from app.models import AddEditModel
+from app.models import AddEditLocationModel
 from app.serializers import ApprovalModelSerializer
 from .serializers import *
 from .threads import *
@@ -33,6 +33,21 @@ def app_add_location_visit(request):
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])       
+def app_add_offline_location_visit(request):
+    try:
+        data = request.data
+        ser = AddOfflineLocationVisitSerializer(data=data)
+        if ser.is_valid():
+            location_visit = ser.create(ser.validated_data, request.user)
+            location_visit.save()
+            return Response({"message":"Offline Location Report created"}, status=status.HTTP_201_CREATED)
+        return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])  
@@ -52,7 +67,7 @@ def app_get_location_visits(request):
             queryset = queryset.filter(created_at__range=(from_date,to_date))     
         objs = queryset
         page = request.GET.get("page", 1)
-        paginator = Paginator(objs, 6)
+        paginator = Paginator(objs, 8)
         data = paginate(objs, paginator, page)
         serializer = LoactionVisitModelSerializer(data["results"], many=True)
         data["results"] = serializer.data
@@ -128,6 +143,30 @@ def get_person_report_single(request, pk):
         return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def app_get_court_order(request):
+    try:
+        bo = BeatOfficerModel.objects.get(email=request.user.email)
+        queryset = CourtOrderModel.objects.filter(assigned_to =bo, is_active=True,order_status="PENDING").order_by('-created_at')
+        if request.query_params.get('type'):
+            type = request.query_params.get('type')
+            queryset = queryset.filter(category = type )
+        if request.query_params.get('from_date') and request.query_params.get('to_date'):
+            from_date = request.query_params.get('from_date')
+            to_date = request.query_params.get('to_date')
+            queryset = queryset.filter(created_at__range=(from_date,to_date))     
+        objs = queryset
+        page = request.GET.get("page", 1)
+        paginator = Paginator(objs, 6)
+        data = paginate(objs, paginator, page)
+        serializer = CourtOrderModelSerializer(data["results"], many=True)
+        data["results"] = serializer.data
+        return Response({"data":data}, status=status.HTTP_200_OK)
+    except Exception as e:
+            return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -136,11 +175,29 @@ def app_court_order_detail(request, pk):
     try:
         if not CourtOrderModel.objects.filter(id=pk):
             return Response({"error": "Invalid Order ID"})
-        queryset = CourtOrderModel.objects.get(order_id=pk)
+        queryset = CourtOrderModel.objects.get(id=pk)
         ser = CourtOrderModelDetailSerializer(queryset)
         return Response(ser.data, status=status.HTTP_200_OK)
     except Exception as e:
             return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def app_update_court_order(request,pk):
+    try:
+        if not CourtOrderModel.objects.filter(id=pk):
+             return Response({"error": "Invalid Order ID"})
+        queryset = CourtOrderModel.objects.get(id=pk)
+        data=request.data
+        ser = CourtOrderChangeSerializer(queryset, data=data, partial=True)
+        if ser.is_valid():
+            ser.save()
+            return Response({"message": "Court order updated successfully"})
+        return Response({"error":ser.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error":str(e), "message":"Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
@@ -156,9 +213,9 @@ def app_get_logs(request, dt):
         s2 = PersonVisitModelSerializer(person_visits, many=True)
         logs = BeatOfficerLogs.objects.filter(BO = bo, created_at__date = dt)
         s3 = BeatOfficerLogsModelSerializer(logs,many=True)
-        add_locations = AddEditModel.objects.filter(approval_type="LOCATION", BO=bo, created_at__date=dt)
+        add_locations = AddEditLocationModel.objects.filter(approval_type="LOCATION", BO=bo, created_at__date=dt)
         s4 = ApprovalModelSerializer(add_locations, many=True)
-        add_person = AddEditModel.objects.filter(approval_type="PERSON", BO=bo, created_at__date=dt)
+        add_person = AddEditPersonModel.objects.filter(approval_type="PERSON", BO=bo, created_at__date=dt)
         s5 = ApprovalModelSerializer(add_person, many=True)
         payload["location_visits"] = s1.data
         payload["person_visits"] = s2.data
